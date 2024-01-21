@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{de2cbbea-be5d-40b1-a141-edaf4becbde4}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	/// axis reference data structure 
+	Axis1: AXIS_REF;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ShiftRegister" Id="{ac29a83c-8972-4d3b-8a3a-f827c81d81d1}">
+      <Declaration><![CDATA[METHOD ShiftRegister
+VAR
+	fbPulse : FB_PulseGenerate2s;	
+	
+	bStart: BOOL;
+	
+    nInByte  :  BYTE:=16#01; (*2#0100 0101*)   
+    nVar : BYTE  := 1; 
+	
+	rt : R_TRIG;
+	bSensor: BOOL;
+	rtSensor : R_TRIG;
+	
+	rtCam1:R_TRIG;
+	bCam1 : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbPulse(bExcute:=bStart);
+
+rt(CLK:=fbPulse.Q);
+IF rt.Q THEN
+	nInByte := SHL(nInByte,nVar);
+END_IF
+
+//register point
+rtSensor(CLK:=bSensor);
+IF rtSensor.Q THEN
+	bSensor:= FALSE;
+	nInByte := nInByte OR 16#01;
+END_IF
+//get bit at 9th position
+rtCam1(CLK:=nInByte.3);
+IF rtCam1.Q THEN
+	bCam1:=bCam1+1;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="MAIN">
+      <LineId Id="135" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.ShiftRegister">
+      <LineId Id="19" Count="16" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

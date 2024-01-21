@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_PulseGenerate2s" Id="{cfba3e8e-5040-47fa-a890-97d7b474e9a0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PulseGenerate2s
+VAR_INPUT
+	bExcute : BOOL;
+END_VAR
+VAR_OUTPUT
+	Q	: BOOL;
+END_VAR
+VAR	
+	rt : R_TRIG;
+	ft : F_TRIG;
+	tpT1	: TP;
+	tonT1	: TON;
+	tonT2	: TON;
+	bEx1: BOOL;
+	bEx2: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[rt(CLK:=bExcute);
+ft(CLK:=bExcute);
+//off function
+IF ft.Q THEN
+	bEx1 := FALSE;
+	bEx2:=FALSE;
+END_IF
+tonT1(IN:=bEx1,PT:=T#1S) ;
+tonT2(IN:=bEx2,PT:=T#1S) ;
+//kích timer 1
+IF 	rt.Q THEN
+	bEx1:=TRUE ;
+END_IF
+//kích timer 2
+IF tonT1.Q THEN
+	bEx2:=TRUE;
+	bEx1:= FALSE;
+END_IF
+IF tonT2.Q THEN
+	bEx1 := TRUE;
+	bEx2:=FALSE;
+END_IF
+//output
+Q:=bEx1;]]></ST>
+    </Implementation>
+    <LineIds Name="FB_PulseGenerate2s">
+      <LineId Id="20" Count="22" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
